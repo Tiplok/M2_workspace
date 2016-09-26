@@ -1,0 +1,298 @@
+******************************************************************************************
+******* Ce fichier est à renomer "nom_prenom_fi_2016.txt" et à uploader sur le site ******
+******* https://www.iut-info.univ-lille1.fr/~lancieri/upload.html ************************
+******************************************************************************************
+
+Nom: Vasseur
+Prénom: Nicolas
+
+
+****************** mettre ci-dessous la matrice Mut ****************
+
+20;20;0;0;0
+20;20;0;20;0
+0;0;20;0;20
+20;0;0;20;0
+0;0;20;0;20
+0;20;0;0;0
+0;0;20;20;20
+0;20;0;0;0
+20;0;20;0;0
+
+****************** mettre ci-dessous la matrice Mut-binaire *********
+
+1;1;0;0;0
+1;1;0;1;0
+0;0;1;0;1
+1;0;0;1;0
+0;0;1;0;1
+0;1;0;0;0
+0;0;1;1;1
+0;1;0;0;0
+1;0;1;0;0
+
+****************** mettre ci-dessous la matrice Mtt ******************
+
+0.0;0.6666667;0.85714287;0.6;1.0
+0.6666667;0.0;1.0;0.8333333;1.0
+0.85714287;1.0;0.0;0.8333333;0.25
+0.6;0.8333333;0.8333333;0.0;0.8
+1.0;1.0;0.25;0.8;0.0
+
+****************** mettre ci-dessous la matrice Mtt-binaire **********
+
+1;0;0;0;0
+0;1;0;0;0
+0;0;1;0;1
+0;0;0;1;0
+0;0;1;0;1
+
+****************** mettre ci-dessous la matrice MutR *****************
+
+
+
+****************** mettre ci-dessous la liste des recomendations *****
+
+Justine -> bricolage (car le couple de thèmes liés est jardinage/bricolage et Justine a acheté dans le thème jardinage sans acheté dans le thème bricolage)
+
+****************** mettre ci-dessous votre compte rendu ****************
+
+A propos du seuil :
+Le seuil permet de régler la liste des recommendations en jouant sur la facilité de couplage entre deux thèmes en utilisant les différents achats des usagers. 
+Plus ce seuil sera haut et plus facilement deux couples de thèmes seront liés et inversement, plus il sera bas et plus il sera difficile de lier deux thèmes ensemble.
+Ainsi, il faut éviter de mettre un seuil trop élévé pour ne pas avoir des recommendations qui ne seraient pas pertinentes. 
+Le seuil a donc un rôle majeur dans la création d'un système de recommendations, c'est ce qui va régir celui-ci et le rendre plus ou moins pertinent.
+
+A propos du TP :
+Ce TP permet de voir la façon dont une liste de recommendations peut-être faite à partir de simples données d'achats entre des usagers et des thèmes.
+Pour les difficultés, Il faut faire attention au typage en Java pour la création de la matrice Mtt qui contient des chiffres à virgules et il est facile de perdre du temps si l'on n'arrive pas tout de suite à trouver une bonne façon de faire les différentes matrices.
+
+
+
+********* Mettre ci-dessous le code soure de votre programme avec commentaires *********
+
+public static void main(String[] args) {
+		String chaine = "";
+		Map<String, Integer> matrixMUT = new HashMap<String, Integer>();
+		ArrayList<String> usagers = new ArrayList<String>();
+		ArrayList<String> themes = new ArrayList<String>();
+		String fichier = "res/log-reco.txt";
+		
+		// Lecture du fichier texte	
+		try {
+			InputStream ips = new FileInputStream(fichier); 
+			InputStreamReader ipsr = new InputStreamReader(ips);
+			BufferedReader br = new BufferedReader(ipsr);
+			String ligne;
+			while((ligne = br.readLine()) != null){
+				String[] parts = ligne.split("\\;");
+				
+				// On vérifie qu'on a bien 3 parties : id, usager, thème
+				if(parts.length == 3){
+					
+					// Si l'usager n'est pas dans la liste, on l'ajoute
+					if(!usagers.contains(parts[1])){
+						usagers.add(parts[1]);
+					}
+
+					// Si le thème n'est pas dans la liste, on l'ajoute
+					if(!themes.contains(parts[2])){
+						themes.add(parts[2]);
+					}
+					
+					// Si il y a déjà une association entre l'usager et le thème trouvée, on incrémente
+					if(matrixMUT.containsKey(parts[1]+";"+parts[2])){
+						matrixMUT.put(parts[1]+";"+parts[2], matrixMUT.get(parts[1]+";"+parts[2])+1);
+						
+					// Sinon, on ajoute cette association
+					} else {
+						matrixMUT.put(parts[1]+";"+parts[2], 1);
+					}
+
+					
+				}
+				
+				chaine += ligne + "\n";
+			}
+			br.close(); 
+			
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+		
+		// Réstitution de la matrice MUT dans un tableau d'int à 2 dimensions pour le fichier
+		int[][] matrix = new int[usagers.size()+1][themes.size()+1];
+		
+		for(int i = 0; i < usagers.size(); i++){
+			for(int j = 0; j < themes.size(); j++){
+				if(matrixMUT.containsKey(usagers.get(i)+";"+themes.get(j))){
+					matrix[i][j] = matrixMUT.get(usagers.get(i)+";"+themes.get(j));
+				} else {
+					matrix[i][j] = 0;
+				}
+			}
+		}
+		
+		System.out.println("Pour la recommendation : ");
+		System.out.println(usagers.get(usagers.size()-1));
+		System.out.println(themes.get(themes.size()-1));
+		
+		
+		// --------------------------- Création du fichier de la matrice MUT et MUT binaire
+		try {
+			FileWriter fw = new FileWriter ("res/matriceMUT.txt");
+			BufferedWriter bw = new BufferedWriter (fw);
+			PrintWriter fichierSortie = new PrintWriter (bw); 
+			
+			FileWriter fw2 = new FileWriter ("res/matriceMUT-binaire.txt");
+			BufferedWriter bw2 = new BufferedWriter (fw2);
+			PrintWriter fichierSortieBinaire = new PrintWriter (bw2); 
+			
+			for(int i = 0; i < usagers.size(); i++){
+				for(int j = 0; j < themes.size(); j++){
+					// MUT simple
+					fichierSortie.print(matrix[i][j]);
+					
+					// MUT binaire
+					if(matrix[i][j] != 0){
+						fichierSortieBinaire.print(1);
+					} else {
+						fichierSortieBinaire.print(0);
+					}
+					
+					if(j != themes.size()-1){
+						fichierSortie.print(";");
+						fichierSortieBinaire.print(";");
+					}
+						
+				}
+				fichierSortie.println();
+				fichierSortieBinaire.println();
+			}
+			
+			fichierSortie.close();
+			fichierSortieBinaire.close();
+			System.out.println("\nLe fichier de la matrice MUT a été créé !"); 
+			System.out.println("\nLe fichier de la matrice MUT-binaire a été créé !"); 
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+		// 
+		
+		// Création de la matrice Mtt dans un tableau d'int à 2 dimensions pour le fichier
+		float[][] matrixMtt = new float[themes.size()+1][themes.size()+1];
+
+		double MOneOne = 0;
+		double MZeroOne = 0;
+		double MOneZero = 0;
+		
+		float distanceJaccard = 0;
+		
+		for(int j = 0; j < themes.size(); j++){
+			for(int k = 0; k < themes.size(); k++){
+				
+				for(int i = 0; i < usagers.size(); i++){
+					
+					// Pour calculer la distance après, l'intersection équivaut à MOneOne et l'union à MZeroOne + MOneZero + MOneOne
+					if(matrix[i][j] != 0 && matrix[i][k] != 0){
+						MOneOne++;
+					} else if(matrix[i][j] == 0 && matrix[i][k] != 0){
+						MZeroOne++;
+					} else if(matrix[i][j] != 0 && matrix[i][k] == 0){
+						MOneZero++;
+					}
+				}
+			
+				// Calcul de la distance entre la colonne j et la colonne k
+				if(MZeroOne + MOneZero + MOneOne == 0){
+					distanceJaccard = 1;
+				} else {
+					distanceJaccard = (float) (1 - (MOneOne / (MZeroOne + MOneZero + MOneOne)));
+				}
+				
+				MOneOne = 0;
+				MZeroOne = 0;
+				MOneZero = 0;
+	
+				matrixMtt[j][k] = distanceJaccard;
+				matrixMtt[k][j] = distanceJaccard;
+			}
+		}
+		
+		
+		// --------------------------- Création du fichier de la matrice Mtt et Mtt binaire
+
+		double seuil = 0.5;
+		
+		try {
+			FileWriter fw = new FileWriter ("res/matriceMtt.txt");
+			BufferedWriter bw = new BufferedWriter (fw);
+			PrintWriter fichierSortie = new PrintWriter (bw); 
+			
+			FileWriter fw2 = new FileWriter ("res/matriceMtt-binaire.txt");
+			BufferedWriter bw2 = new BufferedWriter (fw2);
+			PrintWriter fichierSortieBinaire = new PrintWriter (bw2); 
+			
+			for(int i = 0; i < themes.size(); i++){
+				for(int j = 0; j < themes.size(); j++){
+					// Mtt simple
+					fichierSortie.print(matrixMtt[i][j]);
+					
+					// Mtt binaire
+					if(matrixMtt[i][j] < seuil){
+						fichierSortieBinaire.print(1);
+					} else {
+						fichierSortieBinaire.print(0);
+					}
+					
+					if(j != themes.size()-1){
+						fichierSortie.print(";");
+						fichierSortieBinaire.print(";");
+					}
+						
+				}
+				fichierSortie.println();
+				fichierSortieBinaire.println();
+			}
+			
+			fichierSortie.close();
+			fichierSortieBinaire.close();
+			System.out.println("\nLe fichier de la matrice Mtt a été créé !"); 
+			System.out.println("\nLe fichier de la matrice Mtt-binaire a été créé !"); 
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+
+		// --------------------------- Création du fichier MutR (non terminée)
+		try {
+			FileWriter fw = new FileWriter ("res/matriceMutR.txt");
+			BufferedWriter bw = new BufferedWriter (fw);
+			PrintWriter fichierSortie = new PrintWriter (bw); 
+			
+			// MutR
+				
+			for(int k = 0; k < themes.size(); k++){
+				for(int l = 0; l < themes.size(); l++){
+					if(matrixMtt[k][l] < seuil){
+						for(int i = 0; i < usagers.size(); i++){
+								if(matrix[i][k] != 0 && matrix[i][l] == 0){
+									fichierSortie.print(matrixMtt[i][l]);
+								} else if(matrix[i][k] == 0 && matrix[i][l] != 0){
+									fichierSortie.print(matrixMtt[i][k]);
+								}
+							}
+					}
+				}
+				fichierSortie.println();
+			}
+			
+			fichierSortie.close();
+			System.out.println("\nLe fichier de la matrice MutR a été créé !"); 
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+	}
+

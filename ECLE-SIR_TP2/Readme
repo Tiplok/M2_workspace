@@ -4,3 +4,6 @@ Ergonomie et Conception des Logiciels et des E-services - Services et interactio
 ECLE-SIR_TP2
 
 Ceci est un projet Eclipse. Le TP a eu pour but de créer un fichier d'une matrice MTT de correspondance entre deux catégories à l'aide d'un fichier txt comme dans res/matriceMUT.txt résultant du TP1. 
+
+Le fichier MatrixGenerator correspond au "Contrôle TP" qui a lieu le 26 septembre 2016 à 8h15-10h15.
+Le sujet du CTP correspond au fichier res/sujet2.pdf et le rendu au fichier res/vasseur_nicolas_fi_2016.txt. 
