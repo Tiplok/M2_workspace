@@ -1,3 +1,0 @@
-INDEX VERSION 1.126+/home/m2eserv/vasseur/Documents/M2_workspace/.metadata/.plugins/org.eclipse.jdt.core
-1709654398.index
-4243460292.index
